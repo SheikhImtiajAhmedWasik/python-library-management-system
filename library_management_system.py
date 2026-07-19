@@ -8,10 +8,10 @@ class Person:
 
 
 class Member(Person):
-    def __init__(self, name, age, member_id, borrowed_books=""):
+    def __init__(self, name, age, member_id, borrowed_books=0):
         super().__init__(name, age)
         self.member_id = member_id
-        self.borrowed_books = borrowed_books  # here some work to do may be.
+        self.borrowed_books = borrowed_books
 
     def borrow_book(self):
         pass
@@ -47,7 +47,7 @@ class Library:
         self.members = []
 
     def add_book(self):
-        print("\n----- Add New Book -----")
+        print("\n----- Add New Book -----\n")
         title = input("Enter Book Title: ")
         author = input("Enter Author: ")
         try:
@@ -55,7 +55,7 @@ class Library:
             if self.books != []:
                 book_isbn = [item[2] for item in self.books]
                 if isbn in book_isbn:
-                    raise Exception("Error: ISBN already exists.\n")
+                    raise Exception("\nError: ISBN already exists.\n")
                 book = Book(title, author, isbn, True)
                 self.books.append([book.title, book.author, book.isbn, True])
             else:
@@ -67,21 +67,22 @@ class Library:
             print("\nBook added successfully!\n")
 
     def register_member(self):
-        print("\n----- Register Member -----")
+        print("\n----- Register Member -----\n")
         try:
             member_id = input("Enter Member ID: ")
+            name = input("Enter Name: ")
+            age = int(input("Enter Age: "))
+
             if self.members != []:
                 allmember_id = [item[2] for item in self.members]
                 if member_id in allmember_id:
-                    raise Exception("Error: Member ID already exists.\n")
+                    raise Exception("\nError: Member ID already exists.\n")
 
-            name = input("Enter Name: ")
-            age = int(input("Enter Age: "))
             if age < 0:
-                raise Exception("Error: Age must be greater than 0.\n")
+                raise Exception("\nError: Age must be greater than 0.\n")
             new_member = Member(name, age, member_id)
             self.members.append(
-                [new_member.name, new_member.age, new_member.member_id])
+                [new_member.name, new_member.age, new_member.member_id, new_member.borrowed_books])
         except Exception as e:
             print(e)
         else:
@@ -92,23 +93,45 @@ class Library:
         try:
             member_id = input("Enter Member ID: ")
             isbn = input("Enter Book ISBN: ")
+            book_isbn = [item[2] for item in self.books]
+            if isbn not in book_isbn:
+                raise Exception("Error: ISBN already exists.\n")
+            book = list(filter(lambda item: item[2] == isbn, self.books))
 
             allmember_id = [item[2] for item in self.members]
 
             if member_id not in allmember_id:
                 raise Exception("\nInvalid Member! Member not found.\n")
 
-            book = list(filter(lambda item: item[2] == isbn, self.books))
+            member = list(filter(lambda mem: mem[3] == member_id, self.members))
             if book[0][-1] == True:
                 print("\nBook borrowed successfully.\n")
                 book[0][-1] = False
+                member[0][-1] += 1
             else:
                 print("\nSorry! This book is currently unavailable.\n")
         except Exception as e:
             print(e)
 
     def return_book(self):
-        pass
+        print("\n------ Return Book ------\n")
+        try:
+            member_id = input("Enter Member ID: ")
+            isbn = input("Enter Book ISBN: ")
+
+            allmember_id = [item[2] for item in self.members]
+
+            if member_id not in allmember_id:
+                raise Exception("\nInvalid Member! Member not found.\n")
+
+            member = list(filter(lambda mem: mem[3] == member_id, self.members))
+            book = list(filter(lambda item: item[2] == isbn, self.books))
+            if book[0][-1] == False:
+                print("\nBook returned successfully.\n")
+                book[0][-1] = True
+                member[0][-1] -= 1
+        except Exception as e:
+            print(e)
 
     def show_books(self):
         print("\n------------- BOOK LIST -------------\n")
@@ -123,7 +146,12 @@ class Library:
             print()
 
     def show_members(self):
-        pass
+        print("\n----------- MEMBER LIST ------------\n")
+        for member in self.members:
+            print(
+                f"Member ID\t: {member[2]}\nName\t: {member[0]}\nAge\t: {member[1]}\nBorrowed Books\t: {member[3]}")
+            print("-"*30)
+            print()
 
     def search_book(self):
         print("\n------ Search Book ------\n")
@@ -133,7 +161,7 @@ class Library:
 
         if book != []:
             print("\nBook Found!\n")
-            for item in self.books:
+            for item in book:
                 print(
                     f"ISBN\t: {item[2]}\nTitle\t: {item[0]}\nAuthor\t: {item[1]}")
                 if item[3] == True:
