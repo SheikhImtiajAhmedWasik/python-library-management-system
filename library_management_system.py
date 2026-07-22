@@ -4,7 +4,7 @@ class Person:
         self.age = age
 
     def display_info(self):
-        pass
+        print(f"Name: {self.name}\nAge: {self.age}")
 
 
 class Member(Person):
@@ -14,31 +14,30 @@ class Member(Person):
         self.borrowed_books = borrowed_books
 
     def borrow_book(self):
-        pass
+        self.borrowed_books += 1
 
     def return_book(self):
-        pass
+        self.borrowed_books -= 1
 
     def display_info(self):  # Override
-        pass
+        print(
+            f"Member ID\t: {self.member_id}\nName\t: {self.name}\nAge\t: {self.age}\nBorrowed Books\t: {self.borrowed_books}")
 
 
 class Book:
-    def __init__(self, title, author, isbn, status):
+    def __init__(self, title, author, isbn, status=True):
         self.title = title
         self.author = author
         self.isbn = isbn
-        if status == True:
-            self.status = "Available"
-        else:
-            self.status = "Borrowed"
+        self.status = status
 
     def display_book(self):
-        pass
-
-    def check_status(self, isbn):  # include by myself
-        # return Boolean value
-        pass
+        print(
+            f"ISBN\t: {self.isbn}\nTitle\t: {self.title}\nAuthor\t: {self.author}")
+        if self.status == True:
+            print(f"Status\t: Available")
+        else:
+            print(f"Status\t: Borrowed")
 
 
 class Library:
@@ -57,10 +56,12 @@ class Library:
                 if isbn in book_isbn:
                     raise Exception("\nError: ISBN already exists.\n")
                 book = Book(title, author, isbn, True)
-                self.books.append([book.title, book.author, book.isbn, True])
+                self.books.append(
+                    [book.title, book.author, book.isbn, book.status])
             else:
                 book = Book(title, author, isbn, True)
-                self.books.append([book.title, book.author, book.isbn, True])
+                self.books.append(
+                    [book.title, book.author, book.isbn, book.status])
         except Exception as e:
             print(e)
         else:
@@ -95,15 +96,16 @@ class Library:
             isbn = input("Enter Book ISBN: ")
             book_isbn = [item[2] for item in self.books]
             if isbn not in book_isbn:
-                raise Exception("Error: ISBN already exists.\n")
+                raise Exception("\nBook not found.\n")
             book = list(filter(lambda item: item[2] == isbn, self.books))
 
             allmember_id = [item[2] for item in self.members]
 
             if member_id not in allmember_id:
-                raise Exception("\nInvalid Member! Member not found.\n")
+                raise Exception("\nMember not found.\n")
 
-            member = list(filter(lambda mem: mem[3] == member_id, self.members))
+            member = list(
+                filter(lambda mem: mem[2] == member_id, self.members))
             if book[0][-1] == True:
                 print("\nBook borrowed successfully.\n")
                 book[0][-1] = False
@@ -124,7 +126,8 @@ class Library:
             if member_id not in allmember_id:
                 raise Exception("\nInvalid Member! Member not found.\n")
 
-            member = list(filter(lambda mem: mem[3] == member_id, self.members))
+            member = list(
+                filter(lambda mem: mem[2] == member_id, self.members))
             book = list(filter(lambda item: item[2] == isbn, self.books))
             if book[0][-1] == False:
                 print("\nBook returned successfully.\n")
@@ -136,20 +139,18 @@ class Library:
     def show_books(self):
         print("\n------------- BOOK LIST -------------\n")
         for item in self.books:
-            print(
-                f"ISBN\t: {item[2]}\nTitle\t: {item[0]}\nAuthor\t: {item[1]}")
-            if item[3] == True:
-                print("Status\t: Available\n")
-            else:
-                print("Status\t: Borrowed\n")
+            book = Book(item[0], item[1], item[2], item[3])
+            book.display_book()
+            print()
             print("-"*30)
             print()
 
     def show_members(self):
         print("\n----------- MEMBER LIST ------------\n")
-        for member in self.members:
-            print(
-                f"Member ID\t: {member[2]}\nName\t: {member[0]}\nAge\t: {member[1]}\nBorrowed Books\t: {member[3]}")
+        for mem in self.members:
+            member = Member(mem[0], mem[1], mem[2], mem[3])
+            member.display_info()
+            print()
             print("-"*30)
             print()
 
